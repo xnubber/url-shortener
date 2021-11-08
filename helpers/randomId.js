@@ -1,19 +1,9 @@
-function sample(str) {
-  let randIndex = Math.floor(Math.random() * str.length)
-  return str[randIndex]
-}
+const { customAlphabet } = require('nanoid')
+const lowerCase = 'abcdefghijklmnopqrstuvwxyz'
+const upperCase = lowerCase.toUpperCase()
+const num = '0123456789'
+const collection = lowerCase + upperCase + num
 
-function generateShort() {
-  const lowerCase = 'abcdefghijklmnopqrstuvwxyz'
-  const upperCase = lowerCase.toUpperCase()
-  const num = '0123456789'
-  const collection = lowerCase + upperCase + num
-  let shorten_id = ''
-  for (let i = 0; i < 5; i++) {
-    shorten_id += sample(collection)
-  }
-  return shorten_id
-}
+const nanoid = customAlphabet(collection, 5)
 
-
-module.exports = generateShort
+module.exports = nanoid
