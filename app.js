@@ -14,16 +14,19 @@ const UrlShortener = require('./models/url-shortener')
 
 // tools
 app.use(express.urlencoded({extended: true}))
+const generateShort = require('./helpers/randomId')
+
 
 // routes
 app.get('/', (req, res) => {
-  console.log(window.location.hostname)
   res.render('index')
 })
 
 app.post('/', async (req, res) => {
-  const newShortUrl = new UrlShortener(req.body)
-  await newShortUrl.save()
+  const shortenId = generateShort()
+  const originUrl = req.body
+  originUrl.shorten_id = shortenId
+  console.log(originUrl)
   res.redirect('/')
 })
 
