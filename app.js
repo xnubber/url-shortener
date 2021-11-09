@@ -50,8 +50,19 @@ app.post('/', async (req, res) => {
   } else {
     originUrl = existUrl
   }
+
   
   res.render('shorten', { originUrl })
+})
+
+app.get('/:shorten_id', async (req, res) => {
+  const shorten_id = req.params
+  const checkExist = await UrlShortener.findOne(shorten_id).lean()
+  if(checkExist) {
+    res.redirect(`${checkExist.origin_url}`)
+  } else {
+    res.send('Page cannot Found')
+  }
 })
 
 
