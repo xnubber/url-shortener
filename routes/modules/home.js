@@ -37,7 +37,7 @@ router.post('/', catchAsync(async(req, res, next) => {
     let existUrl = await UrlShortener.findOne({ origin_url: originUrl.origin_url }).lean()
     if (!existUrl) {
       let shortenId = nanoid()
-      
+
       // check shorten_id existed in DB or not
       let existId = await UrlShortener.findOne({ shorten_id: shortenId }).lean()
       while (existId) {

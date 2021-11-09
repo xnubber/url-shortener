@@ -1,11 +1,25 @@
-<form action="" >
-  <h1>Here is Your Shorten Link</h1>
-  <input type="url" placeholder="Shorten your link" name="origin_url" value="http://{{originUrl.shorten_url}}" required>
-  <button>Copy</button>
-</form>
+<div>
+  <h1 class="mt-5">Here is Your Shorten Link</h1>
+  <input type="url" class="form-control" placeholder="Shorten your link" name="origin_url"
+    value="http://{{originUrl.shorten_url}}" id="copy-shorten-url" required>
+  <button type="button" class="btn btn-primary mt-3" onclick="copyEvent('copy-shorten-url')">Copy</button>
+</div>
 
 <div>
-<p>Your shorten url goes to "{{originUrl.origin_url}}"</p>
-<a href="/{{originUrl.shorten_id}}">http://{{originUrl.shorten_url}}</a>
+  <p class="mt-3">Your shorten url goes to "{{originUrl.origin_url}}"</p>
+  <a class="btn btn-warning mb-3" href="/{{originUrl.shorten_id}}">http://{{originUrl.shorten_url}}</a>
 </div>
 <a href="/">Back</a>
+
+<script>
+  function copyEvent() {
+    const copyText = document.querySelector('#copy-shorten-url')
+
+    copyText.select();
+    copyText.setSelectionRange(0, 99999); /* For mobile devices */
+
+    /* Copy the text inside the text field */
+    navigator.clipboard.writeText(copyText.value);
+
+  }
+</script>

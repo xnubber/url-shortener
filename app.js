@@ -11,11 +11,10 @@ app.set('view engine', 'hbs')
 // mongoose
 require('./config/mongoose')
 
-
 // tools
 app.use(express.urlencoded({ extended: true }))
 const errorHandler = require('./helpers/errorHandler')
-
+app.use(express.static('public'))
 
 // router
 const routes = require('./routes')
@@ -23,8 +22,6 @@ app.use(routes)
 
 // error handler
 app.use(errorHandler)
-
-
 
 
 app.listen(port, () => {
