@@ -5,8 +5,13 @@ const urlShortenerSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  shorten_url: {
+    type: String,
+    required: true,
+  },
   shorten_id: {
     type: String,
+    required: true
   },
   custom: {
     type: String,
