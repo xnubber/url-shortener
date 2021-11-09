@@ -10,16 +10,19 @@ app.set('view engine', 'hbs')
 
 // mongoose
 require('./config/mongoose')
-const UrlShortener = require('./models/url-shortener')
+
 
 // tools
 app.use(express.urlencoded({ extended: true }))
-
+const errorHandler = require('./helpers/errorHandler')
 
 
 // router
 const routes = require('./routes')
 app.use(routes)
+
+// error handler
+app.use(errorHandler)
 
 
 
