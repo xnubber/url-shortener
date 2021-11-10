@@ -9,11 +9,7 @@ const UrlShortener = require('../../models/url-shortener')
 const nanoid = require('../../helpers/randomId')
 const catchAsync = require('../../helpers/catchAsync')
 const ExpressError = require('../../helpers/ExpressError')
-  // check original URL domain name tools
-const dns = require('dns')
-const promisify = require('util').promisify
-const lookup = promisify(dns.lookup)
-
+const got = require('got')
 
 // index page
 router.get('/', (req, res) => {
@@ -24,38 +20,41 @@ router.get('/', (req, res) => {
 router.post('/', catchAsync(async(req, res, next) => {
   const host = req.headers.host
   let originUrl = req.body
-
-  // check original url work or not
   const url = new URL(originUrl.origin_url)
   try {
-    const checkDomain = await lookup(url.hostname)
+    // check original url domain name valid or not
+    const response = await got(url.origin)
+    //check original url existed in DB or not
+    try {
+      let existUrl = await UrlShortener.findOne({ origin_url: originUrl.origin_url }).lean()
+      if (!existUrl) {
+        let shortenId = nanoid()
+
+        // check shorten_id existed in DB or not
+        let existId = await UrlShortener.findOne({ shorten_id: shortenId }).lean()
+        while (existId) {
+          shortenId = nanoid()
+          existId = await UrlShortener.findOne({ shorten_id: shortenId }).lean()
+        }
+
+        // if original url & shorten_id not exist then create
+        const shorten_url = host + '/' + shortenId
+        originUrl.shorten_url = shorten_url
+        originUrl.shorten_id = shortenId
+        const newUrl = new UrlShortener(originUrl)
+        await newUrl.save()
+      } else {
+        originUrl = existUrl
+      }
+    } catch(err) {
+      throw new ExpressError('Server error', 500)
+    }
+   
+    res.render('shorten', { originUrl })
   } catch(err) {
-    next(err)
+    throw new ExpressError(`${err}`, err.statusCode || 404)
   } 
 
-    //check original url existed in DB or not
-    let existUrl = await UrlShortener.findOne({ origin_url: originUrl.origin_url }).lean()
-    if (!existUrl) {
-      let shortenId = nanoid()
-
-      // check shorten_id existed in DB or not
-      let existId = await UrlShortener.findOne({ shorten_id: shortenId }).lean()
-      while (existId) {
-        shortenId = nanoid()
-        existId = await UrlShortener.findOne({ shorten_id: shortenId }).lean()
-      }
-
-      // if original url & shorten_id not exist then create
-      const shorten_url = host + '/' + shortenId
-      originUrl.shorten_url = shorten_url
-      originUrl.shorten_id = shortenId
-      const newUrl = new UrlShortener(originUrl)
-      await newUrl.save()
-    } else {
-      originUrl = existUrl
-    }
-
-  res.render('shorten', { originUrl })
 }))
 
 // redirect shorten url
