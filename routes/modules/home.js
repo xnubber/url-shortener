@@ -30,7 +30,7 @@ router.post('/', catchAsync(async(req, res, next) => {
       try {
         // check or create
         let existUrl = await UrlShortener.findOne({ origin_url }).lean()
-        let shorten_id = Math.floor(Math.random() * 5)
+        let shorten_id = nanoid()
         const shorten_url = host + '/' + shorten_id
         existUrl ? existUrl : await UrlShortener.create({ origin_url, shorten_id, shorten_url })
         renderUrl = existUrl || Object.assign(req.body, { shorten_url: shorten_url, shorten_id: shorten_id })
@@ -38,7 +38,6 @@ router.post('/', catchAsync(async(req, res, next) => {
         res.render('shorten', { renderUrl })
         counter = 0
       } catch (err) {
-        // nanoid()
         // duplicate key, retry, max 10 times
         if (err.code === 11000) {
           counter-- 
