@@ -11,7 +11,8 @@ const urlShortenerSchema = new mongoose.Schema({
   },
   shorten_id: {
     type: String,
-    required: true
+    required: true,
+    index: { unique: true },
   },
   custom: {
     type: String,
@@ -24,5 +25,10 @@ const urlShortenerSchema = new mongoose.Schema({
   },
 })
 
-const UrlShortener = mongoose.model('UrlShortener', urlShortenerSchema)
+
+
+const UrlShortener = mongoose.model('UrlShorten', urlShortenerSchema)
+
+
 module.exports = UrlShortener
+

@@ -19,42 +19,40 @@ router.get('/', (req, res) => {
 // check and create
 router.post('/', catchAsync(async(req, res, next) => {
   const host = req.headers.host
-  let originUrl = req.body
-  const url = new URL(originUrl.origin_url)
+  let {origin_url} = req.body
+  const url = new URL(origin_url)
   try {
     // check original url domain name valid or not
     const response = await got(url.origin)
     //check original url existed in DB or not
-    try {
-      let existUrl = await UrlShortener.findOne({ origin_url: originUrl.origin_url }).lean()
-      if (!existUrl) {
-        let shortenId = nanoid()
-
-        // check shorten_id existed in DB or not
-        let existId = await UrlShortener.findOne({ shorten_id: shortenId }).lean()
-        while (existId) {
-          shortenId = nanoid()
-          existId = await UrlShortener.findOne({ shorten_id: shortenId }).lean()
+    let counter = 10;
+    while (counter) {
+      try {
+        // check or create
+        let existUrl = await UrlShortener.findOne({ origin_url }).lean()
+        let shorten_id = Math.floor(Math.random() * 5)
+        const shorten_url = host + '/' + shorten_id
+        existUrl ? existUrl : await UrlShortener.create({ origin_url, shorten_id, shorten_url })
+        renderUrl = existUrl || Object.assign(req.body, { shorten_url: shorten_url, shorten_id: shorten_id })
+        
+        res.render('shorten', { renderUrl })
+        counter = 0
+      } catch (err) {
+        // nanoid()
+        // duplicate key, retry, max 10 times
+        if (err.code === 11000) {
+          counter-- 
+          if (counter === 0) {
+            throw new ExpressError('Server error', 501)
+          }
+        } else {
+          throw new ExpressError('Server error', 500)
         }
-
-        // if original url & shorten_id not exist then create
-        const shorten_url = host + '/' + shortenId
-        originUrl.shorten_url = shorten_url
-        originUrl.shorten_id = shortenId
-        const newUrl = new UrlShortener(originUrl)
-        await newUrl.save()
-      } else {
-        originUrl = existUrl
       }
-    } catch(err) {
-      throw new ExpressError('Server error', 500)
     }
-   
-    res.render('shorten', { originUrl })
   } catch(err) {
     throw new ExpressError(`${err}`, err.statusCode || 404)
   } 
-
 }))
 
 // redirect shorten url
