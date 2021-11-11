@@ -1,7 +1,7 @@
 // express
 const express = require('express')
 const app = express()
-const port = 3000
+const PORT = process.env.PORT || 3000
 
 // express handlebars
 const exphbs = require('express-handlebars')
@@ -24,6 +24,6 @@ app.use(routes)
 app.use(errorHandler)
 
 
-app.listen(port, () => {
-  console.log(`Express is listening on localhost:${port}`)
+app.listen(PORT, () => {
+  console.log(`Express is listening on localhost:${PORT}`)
 })
